@@ -30,14 +30,11 @@ These pure JVM components are not connected to a TUN descriptor. Passing codec t
 
 The user selected this safety policy: **keep VPN establishment disabled until complete IPv4 and IPv6 forwarding is implemented and tested**. IPv6 must not bypass the VPN, and it must not be deliberately dropped as a substitute for support.
 
-VpnReleaseGate requires all of these capabilities to be implemented and tested:
-- IPv4 forwarding
-- IPv6 forwarding
-- non-DNS forwarding
+VpnReleaseGate requires each normal-connectivity capability and safety property to be implemented and tested: IPv4/IPv6 TCP and UDP, QUIC over UDP in both families, UDP/TCP DNS interception in both families, DNS filtering, no port-53 bypass, protected egress sockets, return traffic, bounded flow state, validated ICMP failure/MTU behavior, cleanup, emergency stop, and automated tests. Internet ICMP echo forwarding is diagnostic and is not an independent gate requirement. All readiness values are false in this build.
 
-Every value is false in this build. AdBlockVpnService therefore does not configure routes and does not create a TUN. Start attempts transition STARTING -> ERROR, then service cleanup transitions through STOPPING -> STOPPED. STOP sends a service stop request. There is no boot receiver, always-on setting, or automatic start path.
+AdBlockVpnService therefore does not configure routes and does not create a TUN. Start attempts transition STARTING -> ERROR, then service cleanup transitions through STOPPING -> STOPPED. STOP sends a service stop request. There is no boot receiver, always-on setting, or automatic start path.
 
-The future tunnel must handle all IPv4 and IPv6 traffic routed into it, including TCP, UDP, ICMP/ICMPv6, extension headers, fragmentation, MTU behavior, and DNS. It must protect upstream sockets from recursion and provide a defined response for every packet class before the gate can change. No current VPN start route reaches establish().
+The future tunnel must handle all routed IPv4/IPv6 TCP and UDP traffic, including QUIC datagrams and return traffic. ICMP echo may be unsupported, but it must not be answered locally as if the remote host replied. ICMP errors associated with protected outer sockets are handled by Android; the selected engine's inner IPv6 Packet Too Big and oversized UDP behavior must be validated before startup can be enabled. Protect upstream sockets from recursion and handle or explicitly reject unsupported traffic classes. No current VPN start route reaches establish().
 
 ## App UI
 
