@@ -15,7 +15,7 @@ The VPN will remain disabled until complete IPv4 and IPv6 forwarding, DNS and no
 
 ## Forwarding architecture
 
-The selected next implementation step and dependency tradeoffs are recorded in [docs/FORWARDING_ARCHITECTURE_DECISION.md](docs/FORWARDING_ARCHITECTURE_DECISION.md). HEV tun2socks plus a protected loopback SOCKS5 service is a prototype decision only; it is not integrated yet, and the VPN remains disabled.
+The selected next implementation step and dependency tradeoffs are recorded in [docs/FORWARDING_ARCHITECTURE_DECISION.md](docs/FORWARDING_ARCHITECTURE_DECISION.md). HEV tun2socks is selected for a prototype. CI now builds/packages its pinned native core and the app includes its JNI signature bridge; runtime integration and the protected loopback SOCKS5 service are not implemented. The VPN remains disabled.
 
 ## Safety and privacy
 
