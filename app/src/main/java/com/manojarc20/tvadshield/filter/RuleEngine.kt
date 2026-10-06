@@ -1,17 +1,41 @@
 package com.manojarc20.tvadshield.filter
 
+/**
+ * Deterministic hostname policy evaluator. Invalid input and unmatched hosts return ALLOW so the
+ * core never invents a block decision; callers that process DNS must validate input separately.
+ */
 class RuleEngine(rules: List<Rule>) {
-    private val rules = rules.map { it.copy(pattern = normalize(it.pattern)) }.filter { it.pattern.isNotEmpty() }
-
-    fun decide(hostname: String): Rule.Action {
-        val host = normalize(hostname)
-        if (host.isEmpty()) return Rule.Action.ALLOW
-        var decision = Rule.Action.ALLOW
-        for (rule in rules) {
-            if (host == rule.pattern || host.endsWith(".${rule.pattern}")) decision = rule.action
+    private val normalizedRules = rules.mapNotNull { rule ->
+        HostnameNormalizer.normalize(rule.pattern)?.let { normalized ->
+            CompiledRule(normalized, rule.action, rule.includeSubdomains)
         }
-        return decision
     }
 
-    private fun normalize(value: String): String = value.trim().lowercase().trimEnd('.')
+    /**
+     * The most specific matching hostname rule wins. At equal specificity, ALLOW wins.
+     * Rules match at DNS label boundaries, so example.com does not match notexample.com.
+     */
+    fun decide(hostname: String?): Rule.Action {
+        val host = HostnameNormalizer.normalize(hostname) ?: return Rule.Action.ALLOW
+
+        val matchingRule = normalizedRules
+            .asSequence()
+            .filter { it.matches(host) }
+            .maxWithOrNull(
+                compareBy<CompiledRule> { it.pattern.length }
+                    .thenBy { if (host == it.pattern) 1 else 0 }
+                    .thenBy { if (it.action == Rule.Action.ALLOW) 1 else 0 }
+            )
+
+        return matchingRule?.action ?: Rule.Action.ALLOW
+    }
+
+    private data class CompiledRule(
+        val pattern: String,
+        val action: Rule.Action,
+        val includeSubdomains: Boolean
+    ) {
+        fun matches(host: String): Boolean =
+            host == pattern || (includeSubdomains && host.endsWith(".$pattern"))
+    }
 }

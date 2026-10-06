@@ -1,11 +1,23 @@
 # TVAdShield Safety Rules
 
-Safety is a release gate.
+Safety is a release gate. V1 is not authorized to change device networking.
 
-TVAdShield must never require root, bootloader unlocking, firmware flashing, custom firmware, system partition changes, or kernel changes.
+## Current safeguards
 
-The full-device VPN must not be enabled until packet forwarding, DNS handling, lifecycle recovery, explicit start/stop, crash recovery, and fail-safe behavior are implemented and tested.
+- The app does not connect to, control, root, unlock, flash, or modify a television.
+- No ADB workflow or device installation is part of CI.
+- AdBlockVpnService intentionally never calls VpnService.Builder.establish(). A start request enters STARTING, then ERROR because packet transport is not implemented, and the service stops.
+- No production VPN tunnel, DNS packet transport, real upstream resolver, third-party blocklist, or filtering UI is wired into the app.
+- Unit tests and the debug APK build run on GitHub-hosted Ubuntu and do not require a TV.
 
-If a future VPN build causes connectivity problems: stop TVAdShield, disconnect the VPN, uninstall if necessary, confirm normal Google TV connectivity, and stop testing until the cause is understood.
+## DNS policy failure behavior
 
-Network filtering cannot guarantee removal of every ad. Server-side ad insertion, DRM-protected media, encrypted protocols, and ads delivered from the same infrastructure as content can require different techniques or may be impossible to filter without breaking playback.
+A matching blocked name receives NXDOMAIN by design. Malformed query names receive FORMERR. An allowed name is delegated to the resolver abstraction. A timeout or resolver exception produces SERVFAIL; the component does not bypass filtering with a fallback resolver and does not silently turn an upstream failure into NXDOMAIN. This makes failures explicit to a future caller. A concrete resolver must enforce the timeout budget passed to it.
+
+## Why TV testing is postponed
+
+TV testing is postponed until packet parsing and forwarding, DNS transport, service lifecycle recovery, start/stop behavior, and failure handling exist and have automated coverage. Connecting a device before those pieces are implemented could interrupt its network access and would not validate this policy-only prototype. Future device testing must be a separately reviewed, explicit stage.
+
+## Limits
+
+Network filtering cannot guarantee removal of every ad. Server-side insertion, DRM-protected media, encrypted protocols, and ads delivered from the same infrastructure as content can require different techniques or may be impossible to filter without breaking playback. No effectiveness claim should be made without measured testing.
