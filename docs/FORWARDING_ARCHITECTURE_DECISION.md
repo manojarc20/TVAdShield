@@ -82,10 +82,10 @@ The SOCKS service uses loopback only, ephemeral port, random per-start authentic
 
 ## Implementation sequence and acceptance tests
 
-1. Pin HEV plus every submodule commit and preserve MIT/BSD notices. Build the Android native library reproducibly in CI for app-supported ABIs, targeting API 24. If API 24 cannot be supported and tested, stop and revisit the app's minimum API before proceeding.
+1. HEV source and all submodule commits are now pinned in `.github/workflows/android-ci.yml`. CI builds four ABIs with NDK r27 and API 24, and the app includes the upstream JNI class plus packaged MIT/BSD notices. This is build integration only; it has not yet passed CI or been invoked at runtime. If API 24 cannot be supported and tested, stop and revisit the app's minimum API before proceeding.
 2. Implement/test the private SOCKS5 control, TCP CONNECT, UDP ASSOCIATE, protected egress, bounds, timeout, and idempotent close using JVM local fake TCP/UDP servers. Tests must verify numeric-only destinations and that a refused `protect()` prevents egress.
 3. Route UDP/TCP DNS into DnsPacketProcessor and use fake DoT resolver for deterministic A/AAAA, blocked, malformed, timeout and failure tests. Verify IPv4 and IPv6 DNS requests cannot get a raw port-53 egress socket.
 4. Integrate HEV and the SOCKS service behind an Android service lifecycle abstraction, retaining the closed release gate. Build/run instrumentation tests on API 24 and a current API emulator to exercise duplicated TUN descriptor ownership, dual-stack packets, TCP/UDP/QUIC-sized datagrams, start/stop/fatal cleanup, and IPv6 DNS capture. These are **ANDROID TEST REQUIRED** before gate changes.
 5. Profile bounded CPU/RAM/flow behavior on emulators. Physical TV test remains postponed until automated tests, CI, review and user approval establish readiness.
 
-No forwarding dependency is wired today; the VPN remains disabled until these steps are complete.
+The selected HEV native library is built and packaged by CI, but the VPN service does not load or start it and there is no SOCKS5 egress service yet. TUN forwarding remains absent and the VPN remains disabled until all steps above pass.
