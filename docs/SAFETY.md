@@ -2,6 +2,10 @@
 
 Safety is a release gate. **The VPN is disabled in this build, and physical TV testing is not ready.**
 
+## Platform support
+
+The application currently declares Android API 24 (Android 7.0) as its minimum. This does not certify compatibility with any specific TV model; emulator and physical TV validation remain outstanding.
+
 ## Dual-stack policy
 
 The selected policy is to keep VPN establishment disabled until complete IPv4 and IPv6 forwarding is implemented and tested. Do not route IPv6 outside the VPN while claiming protection. Do not intentionally drop IPv6 traffic to simulate support. Do not establish a partial tunnel.

@@ -21,7 +21,7 @@ No analytics, advertising SDK, telemetry, or DNS history storage is included. Th
 
 ## Development and validation
 
-The repository uses Gradle 8.9, JDK 17, and Android SDK API 35. GitHub Actions runs JVM unit tests, Android lint, debug APK assembly, and unsigned release APK assembly on every push and pull request. CI success does not mean the VPN or filtering is active.
+The repository uses Gradle 8.9, JDK 17, Android SDK API 35, and targets Android API 24 or newer (Android 7.0+). GitHub Actions runs JVM unit tests, Android lint, debug APK assembly, and unsigned release APK assembly on every push and pull request. CI success does not mean the VPN or filtering is active.
 
 Build locally with:
 

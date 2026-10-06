@@ -4,6 +4,10 @@
 
 This is a development candidate, **not ready for physical Android/Google TV testing**. Protection is OFF. The UI disables Start. The service contains no VPN Builder or TUN establishment call and terminates every start attempt. No application traffic currently enters TVAdShield.
 
+## Platform support
+
+The Android app declares API 24 (Android 7.0) as its minimum because the resolver relies on secure TLS hostname verification and SNI APIs introduced there. The app targets Android TV/Google TV; actual vendor compatibility still needs emulator and physical-device validation.
+
 ## Domain rules
 
 The filtering core is JVM-only. Hostnames are trimmed, converted to lowercase ASCII using IDN punycode, and accept one trailing DNS root dot. Malformed names do not match. Rules support exact hosts or hosts plus subdomains. A reversed-label trie gives suffix lookup proportional to hostname labels rather than total rule count. Most-specific rules win; exact host specificity breaks a same-depth tie; ALLOW wins a remaining tie.
