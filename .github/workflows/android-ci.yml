@@ -10,8 +10,9 @@ permissions:
 
 jobs:
   android:
-    name: Unit tests and debug APK
+    name: Tests, lint, and APKs
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -32,16 +33,38 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Run unit tests
+      - name: Validate Gradle configuration
+        run: ./gradlew --no-daemon --version
+
+      - name: Run all JVM unit tests
         run: ./gradlew --no-daemon test
+
+      - name: Run Android static analysis
+        run: ./gradlew --no-daemon lint
 
       - name: Build debug APK
         run: ./gradlew --no-daemon assembleDebug
+
+      - name: Build unsigned release APK
+        run: ./gradlew --no-daemon assembleRelease
+
+      - name: Verify APK outputs
+        run: |
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          test -s app/build/outputs/apk/release/app-release-unsigned.apk
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: tvadshield-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload unsigned release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: tvadshield-unsigned-release-apk
+          path: app/build/outputs/apk/release/app-release-unsigned.apk
           if-no-files-found: error
           retention-days: 14

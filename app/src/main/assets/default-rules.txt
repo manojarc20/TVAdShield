@@ -1,0 +1,8 @@
+# TVAdShield first-party starter rules; not a third-party blocklist.
+# Review compatibility before enabling these rules on a device.
+block doubleclick.net
+block googlesyndication.com
+block googleadservices.com
+block adservice.google.com
+block app-measurement.com
+block adsrvr.org
