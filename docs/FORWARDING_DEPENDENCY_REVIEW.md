@@ -1,6 +1,6 @@
 # Forwarding Dependency Review
 
-Reviewed 2026-10-06 for the final release-candidate investigation. This review does not enable VPN startup. No third-party forwarding dependency is integrated in the app.
+Reviewed 2026-10-06 for the final release-candidate investigation. This review does not enable VPN startup. The pinned HEV native core and JNI signature bridge have been added to the CI packaging path, but the library is not loaded or invoked at runtime and no local SOCKS5 egress is implemented.
 
 ## Requirements used
 
@@ -32,4 +32,4 @@ If these conditions cannot be met with the dependency, the project must evaluate
 
 ## Status
 
-No dependency is currently added or invoked. The app has no live packet loop. The detailed readiness gate remains false for every capability; `VpnService.Builder.establish()` remains absent. The VPN stays disabled.
+The pinned HEV source build, JNI class, and third-party notices are now present. CI still needs to prove the API-24 native build. The native library is not started by app code, no SOCKS5 egress service or live packet loop exists, and the detailed readiness gate remains false for every capability. `VpnService.Builder.establish()` remains absent and the VPN stays disabled.
