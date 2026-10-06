@@ -136,7 +136,7 @@ class DnsOverTlsResolver(
         val elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt)
         val remaining = budgetMillis - elapsedMillis
         if (remaining <= 0) throw java.net.SocketTimeoutException("DNS-over-TLS time budget expired")
-        return remaining
+        return remaining.toInt()
     }
 
     private fun numericAddress(value: String): InetAddress {
