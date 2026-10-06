@@ -38,6 +38,15 @@ class UdpIpPacketCodecTest {
         assertEquals(IpPacketParseResult.Malformed, UdpIpPacketCodec.parse(byteArrayOf(0x45)))
         val udp = UdpIpPacketCodec.encode(datagram(ipv6 = false))
         udp[9] = 6
+        udp[10] = 0
+        udp[11] = 0
+        val headerSum = (0 until 20 step 2).sumOf { index ->
+            ((udp[index].toInt() and 0xff) shl 8) or (udp[index + 1].toInt() and 0xff)
+        }
+        val folded = (headerSum and 0xffff) + (headerSum ushr 16)
+        val checksum = folded.inv() and 0xffff
+        udp[10] = (checksum ushr 8).toByte()
+        udp[11] = checksum.toByte()
         assertEquals(IpPacketParseResult.Unsupported, UdpIpPacketCodec.parse(udp))
     }
 

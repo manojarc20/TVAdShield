@@ -62,7 +62,7 @@ object UdpIpPacketCodec {
         if (headerLength < IPV4_MIN_HEADER || headerLength > packet.size ||
             totalLength != packet.size || totalLength < headerLength + UDP_HEADER
         ) return IpPacketParseResult.Malformed
-        if (checksum(packet, 0, headerLength) != 0xffff) return IpPacketParseResult.Malformed
+        if (checksum(packet, 0, headerLength) != 0) return IpPacketParseResult.Malformed
 
         val fragmentField = u16(packet, 6)
         if (fragmentField and IPV4_FRAGMENT_MASK != 0) return IpPacketParseResult.Unsupported
@@ -74,7 +74,7 @@ object UdpIpPacketCodec {
             return IpPacketParseResult.Malformed
         }
         val checksumField = u16(packet, udpOffset + 6)
-        if (checksumField != 0 && udpChecksumIpv4(packet, udpOffset, udpLength) != 0xffff) {
+        if (checksumField != 0 && udpChecksumIpv4(packet, udpOffset, udpLength) != 0) {
             return IpPacketParseResult.Malformed
         }
 
@@ -140,7 +140,7 @@ object UdpIpPacketCodec {
         val udpLength = u16(packet, offset + 4)
         if (udpLength < UDP_HEADER || offset + udpLength != end) return IpPacketParseResult.Malformed
         if (u16(packet, offset + 6) == 0 ||
-            udpChecksumIpv6(packet, offset, udpLength) != 0xffff
+            udpChecksumIpv6(packet, offset, udpLength) != 0
         ) return IpPacketParseResult.Malformed
 
         return IpPacketParseResult.Udp(
