@@ -28,10 +28,7 @@ jobs:
         with:
           accept-android-sdk-licenses: true
           log-accepted-android-sdk-licenses: false
-          packages: |-
-            platforms;android-35
-            build-tools;35.0.0
-            platform-tools
+          packages: platforms;android-35 build-tools;35.0.0 platform-tools
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
