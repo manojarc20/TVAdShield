@@ -4,20 +4,30 @@ import android.content.Intent
 import android.net.VpnService
 
 /**
- * Android lifecycle adapter only. Packet transport, DNS processing, rule evaluation, statistics,
- * and UI state are separate layers and are not wired to this service yet.
+ * Lifecycle-only safety gate. Dual-stack packet forwarding is not complete, so this service must
+ * not configure routes or establish a TUN. The start action follows STARTING -> ERROR -> STOPPED.
  */
 class AdBlockVpnService : VpnService() {
     private val lifecycle = VpnStateMachine()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Never establish an incomplete tunnel. Report an explicit internal error and stop.
+        if (intent?.action == ACTION_STOP) {
+            stopSelf(startId)
+            return START_NOT_STICKY
+        }
         if (lifecycle.state != VpnState.STOPPED) {
             stopSelf(startId)
             return START_NOT_STICKY
         }
 
         lifecycle.transitionTo(VpnState.STARTING)
+        if (!VpnReleaseGate.mayEstablishVpn()) {
+            lifecycle.transitionTo(VpnState.ERROR)
+            stopSelf(startId)
+            return START_NOT_STICKY
+        }
+
+        // Intentionally no Builder or establish() call exists until the dual-stack gate is met.
         lifecycle.transitionTo(VpnState.ERROR)
         stopSelf(startId)
         return START_NOT_STICKY
@@ -31,5 +41,9 @@ class AdBlockVpnService : VpnService() {
             lifecycle.transitionTo(VpnState.STOPPED)
         }
         super.onDestroy()
+    }
+
+    companion object {
+        const val ACTION_STOP = "com.manojarc20.tvadshield.action.STOP"
     }
 }
