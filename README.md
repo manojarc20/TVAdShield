@@ -13,6 +13,10 @@ TVAdShield is a safety-first Android/Google TV filtering project. This build is 
 
 The VPN will remain disabled until complete IPv4 and IPv6 forwarding, DNS and non-DNS traffic behavior, resource cleanup, and automated tests are all implemented and reviewed. IPv6 will not be passed around the VPN or intentionally dropped as a shortcut.
 
+## Forwarding architecture
+
+The selected next implementation step and dependency tradeoffs are recorded in [docs/FORWARDING_ARCHITECTURE_DECISION.md](docs/FORWARDING_ARCHITECTURE_DECISION.md). HEV tun2socks plus a protected loopback SOCKS5 service is a prototype decision only; it is not integrated yet, and the VPN remains disabled.
+
 ## Safety and privacy
 
 TVAdShield does not root or unlock a TV, modify firmware, system partitions, kernel, bootloader, or Google TV OS, or use ADB. CI builds and tests on GitHub-hosted Ubuntu; it does not install an APK on a device. There is no boot receiver or automatic VPN startup.
