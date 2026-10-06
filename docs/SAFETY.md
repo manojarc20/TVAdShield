@@ -10,9 +10,9 @@ The application currently declares Android API 24 (Android 7.0) as its minimum. 
 
 The selected policy is to keep VPN establishment disabled until complete IPv4 and IPv6 forwarding is implemented and tested. Do not route IPv6 outside the VPN while claiming protection. Do not intentionally drop IPv6 traffic to simulate support. Do not establish a partial tunnel.
 
-VpnReleaseGate requires tested IPv4 forwarding, tested IPv6 forwarding, and tested non-DNS forwarding. All are false. AdBlockVpnService does not configure routes and contains no TUN establishment call. A start request enters STARTING, then ERROR, and the service stops; destruction returns through STOPPING to STOPPED. The app UI says OFF and disables Start.
+VpnReleaseGate requires tested IPv4/IPv6 TCP and UDP, QUIC over UDP in both families, UDP/TCP DNS interception for each family, DNS filtering and no-bypass behavior, protected egress, return traffic, bounded state, validated ICMP failure/MTU behavior, cleanup, emergency stop, and automated tests. All are false. ICMP echo is diagnostic, not a normal application-connectivity gate; it must not be faked with a local echo reply. AdBlockVpnService does not configure routes and contains no TUN establishment call. A start request enters STARTING, then ERROR, and the service stops; destruction returns through STOPPING to STOPPED. The app UI says OFF and disables Start.
 
-A future implementation must forward the full traffic contract safely before enabling the gate. DNS-only processing is insufficient because ordinary TCP/UDP/ICMP traffic and IPv6 must continue to work without bypassing the VPN. Unhandled or unsupported traffic must never be silently black-holed.
+A future implementation must forward normal TCP/UDP application traffic, including IPv6 and QUIC, before enabling the gate. It must validate the selected tunnel's ICMP error and path-MTU behavior, particularly IPv6 Packet Too Big handling, rather than requiring arbitrary echo forwarding or ignoring errors. Unhandled traffic must not be silently described as forwarded.
 
 ## Device and system restrictions
 
