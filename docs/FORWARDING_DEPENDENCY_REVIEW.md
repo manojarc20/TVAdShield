@@ -32,4 +32,4 @@ If these conditions cannot be met with the dependency, the project must evaluate
 
 ## Status
 
-The pinned HEV source build, JNI class, and third-party notices are now present. CI still needs to prove the API-24 native build. The native library is not started by app code, no SOCKS5 egress service or live packet loop exists, and the detailed readiness gate remains false for every capability. `VpnService.Builder.establish()` remains absent and the VPN stays disabled.
+The pinned HEV source build, JNI class, and third-party notices are now present. CI run [37477945970](https://github.com/manojarc20/TVAdShield/actions/runs/37477945970) compiled the native core for all four ABIs at API 24, packaged it in the debug and unsigned release APKs, and passed tests/lint/build checks. The native library is not loaded or started by app code; no SOCKS5 egress service or live packet loop exists. The readiness gate remains false for every capability, `VpnService.Builder.establish()` remains absent, and the VPN stays disabled.
